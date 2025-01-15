@@ -21,7 +21,7 @@ LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-sou
 
 # functions
 def upload_video(filename, timestamp, title, description, video):
-    print("filename: ", filename)
+    # print("filename: ", filename)
     filename, timestamp, title, description, video = filename, str(timestamp), title, description, video
     payload = {'action': 'upload',
                 'params': {
@@ -35,12 +35,25 @@ def upload_video(filename, timestamp, title, description, video):
     try:
         lambda_request =rq.post(LAMBDA_FUNCTION_URL, json=payload)
         lambda_response = lambda_request.json()
-        print("Lambda_response: ",lambda_response)
+        # print("Lambda_response: ",lambda_response)
 
         url = lambda_response['url']
+        url_list = list(url)
+        url_new_list = url_list
+        def url_purifier(new_str, cur_str) :
+            if ("%" not in cur_str) :
+                new_str += cur_str
+                return new_str
+            index = cur_str.index("%")
+            new_str += cur_str[:index]
+            ascii_part_hex = cur_str[index+1:index+3]
+            ascii_part_dec = int(ascii_part_hex, 16)
+            reconstructed_ascii_part = chr(ascii_part_dec)
+            return url_purifier(new_str+reconstructed_ascii_part, cur_str[index+3:])
+        url = url_purifier("",url)
+        print(url)
         file = {"file":(filename, video)}
         http_response = rq.put(url,data=file)
-
         print("http_response.text: ", http_response.text)
     
     except Exception as e:
