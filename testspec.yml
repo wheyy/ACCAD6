@@ -7,7 +7,7 @@ phases:
     commands:
       # Install pytest
       - echo Installing dependencies...
-      - pip install pytest requests
+      - pip install pytest requests flask
       - echo Install success!
       
   build:
