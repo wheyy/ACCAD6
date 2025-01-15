@@ -26,7 +26,12 @@
                     <td><a href="{{ record.video_link }}">{{ record.video_link }}</a></td>
                     <td> <!-- Edit Button -->
                         <a href="{{ url_for('edit', id=record.id) }}" class="btn btn-sm btn-warning ml-2">Edit</a>
+                    <!-- Delete Button -->
+                    <form method="POST" action="{{ url_for('delete', date=date ,id=record.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger ml-2" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
+                    </form>
                     </td>
+                    
                     <!-- <td>
                         ## Display current status (dropdown to edit status)
                         <form method="POST" class="d-inline">
