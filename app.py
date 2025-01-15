@@ -4,6 +4,7 @@ import calendar
 from datetime import datetime
 import uuid
 import json
+import dotenv
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def upload_video(filename, timestamp, title, description, video):
 
         url = lambda_response['url']
         file = {"file":(filename, video)}
-        http_response = rq.put(LAMBDA_FUNCTION_URL,data=file)
+        http_response = rq.put("https://accad-6-attendance-app-bucket.s3.amazonaws.com/"+filename,data=file)
 
         print("http_response.text: ", http_response)
     
