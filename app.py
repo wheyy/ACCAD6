@@ -65,6 +65,9 @@ def upload_video(filename, timestamp, title, description, video):
     except Exception as e:
         print(e)
 
+def get_calendar_view():
+    pass
+
 
 @app.route('/')
 def index():
@@ -112,7 +115,37 @@ def edit(id):
 
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
-        return render_template("view.html", date=date, attendance_data = attendance_data)
+    try:
+        # Send a payload to AWS Lambda to process DynamoDB queries
+        payload = {
+            'action': 'get_calendar',
+            'params': {
+                'date': date
+            }
+        }
+
+        response = rq.post(
+            LAMBDA_FUNCTION_URL, 
+            json=payload, 
+            headers={'Content-Type': 'application/json'}
+        )
+
+        # print(f"Lambda response status: {response.status_code}")
+        # print(f"Lambda response text: {response.text}")
+
+        if response.status_code == 200:
+            calendar_data = response.json()
+            return render_template("view.html", 
+                                date=date, attendance_data=calendar_data)
+        else:
+            return render_template("view.html", 
+                                date=date, 
+                                attendance_data=[])
+    except Exception as e:
+        print(f"Error: {e}")
+        return render_template("view.html", 
+                            date=date, 
+                            attendance_data=[])
 
 @app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
 def delete(id, date):
