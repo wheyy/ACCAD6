@@ -28,7 +28,7 @@ endblock %} {% block content %}
         <td>
           <!-- Edit Button -->
           <a
-            href="{{ url_for('edit', id=record.id) }}"
+            href="{{ url_for('edit', id=record.submission_id, timestamp=record.timestamp) }}"
             class="btn btn-sm btn-warning ml-2"
             >Edit</a
           >

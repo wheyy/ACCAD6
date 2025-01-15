@@ -99,31 +99,64 @@ def upload_post():
     upload_video(filename, date, title, description, video)
     return render_template("calendar.html")
 
-@app.route("/edit/<int:id>", methods=['GET', 'POST'])
-def edit(id):
-    # Find the record by the provided ID, but Im not sure if this generator thing will work
-    video_record = next((record for record in attendance_data if record['id'] == id), None)
-    
-    if not video_record:
-        return "Record not found", 404
+@app.route("/edit/<id>/<timestamp>", methods=['GET', 'POST'])
+def edit(id, timestamp):
+    if request.method == 'GET':
+        try:
+            payload = {
+                'action': 'get_single_entry',
+                'params': {
+                    'submission_id': int(id),
+                    'timestamp': timestamp
+                }
+            }
+            
+            response = rq.post(
+                LAMBDA_FUNCTION_URL,
+                json=payload,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                entry_data = response.json()
+                return render_template("edit.html", entry=entry_data)
+            return redirect(url_for('view', date=timestamp))
 
-    if request.method == 'POST':
-        title = request.form.get("title")
-        description = request.form.get("description")
-        video = request.files.get("video")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            return redirect(url_for('view', date=timestamp))
 
-        if video:
-            filename = video.filename
-            video_record['video_link'] = f"https://your-s3-bucket-url/{filename}" # Im not sure if this is how the linsk should be
-            upload_video(filename, datetime.now(), title, description, video)
-
-        video_record['name'] = title
-        video_record['remarks'] = description
-
-        return redirect(url_for('view', date=datetime.now().strftime('%Y-%m-%d')))
-
-    return render_template("edit.html", video=video_record)
-
+            
+    elif request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            description = request.form.get('description')
+            
+            payload = {
+                'action': 'update_entry',
+                'params': {
+                    'submission_id': int(id),
+                    'timestamp': timestamp,
+                    'title': title,
+                    'description': description
+                }
+            }
+            
+            response = rq.post(
+                LAMBDA_FUNCTION_URL,
+                json=payload,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                return redirect(url_for('view', date=timestamp.split('T')[0]))
+            return render_template("edit.html", error="Failed to update entry")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            return render_template("edit.html", error="Failed to update entry")
+          
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
     try:
@@ -158,12 +191,6 @@ def view(date):
                             date=date, 
                             attendance_data=[])
 
-# @app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
-# def delete(id, date):
-#     id = id
-#     date = date
-#     return redirect(url_for('view', date=date))
-
 @app.route("/delete/<id>/<timestamp>", methods=['POST'])
 def delete(id, timestamp):
         
@@ -191,7 +218,6 @@ def delete(id, timestamp):
     except Exception as e:
         print(f"Error in delete route: {e}")
         return {'status': 'error', 'message': str(e)}, 500
-
 
 @app.route("/coffee")
 def coffee():
