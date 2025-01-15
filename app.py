@@ -137,11 +137,40 @@ def view(date):
                             date=date, 
                             attendance_data=[])
 
-@app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
-def delete(id, date):
-    id = id
-    date = date
-    return redirect(url_for('view', date=date))
+# @app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
+# def delete(id, date):
+#     id = id
+#     date = date
+#     return redirect(url_for('view', date=date))
+
+@app.route("/delete/<id>/<timestamp>", methods=['POST'])
+def delete(id, timestamp):
+        
+    try:
+        id = id
+        timestamp = timestamp
+        payload = {
+            'action': 'delete',
+            'params': {
+                'submission_id': int(id),
+                'timestamp': timestamp
+            }
+        }
+    
+        response = rq.post(
+            LAMBDA_FUNCTION_URL,
+            json=payload,
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        if response.status_code == 200:
+            return {'status': 'success'}, 200
+        return {'status': 'error'}, 500
+            
+    except Exception as e:
+        print(f"Error in delete route: {e}")
+        return {'status': 'error', 'message': str(e)}, 500
+
 
 @app.route("/coffee")
 def coffee():
