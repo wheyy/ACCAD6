@@ -12,13 +12,13 @@
 <body>
     <div class="container my-5">
         <h1 class="text-center mb-4">Upload Video</h1>
-        <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <form action="/upload" id="uploadForm" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="videoTitle" class="form-label">Title</label>
                 <input type="text" class="form-control" id="videoTitle" name="title" placeholder="Enter video title" required>
             </div>
             <div class="mb-3">
-                <label for="videoDescription" class="form-label">Description</label>
+                <label action="/upload" id="videoDescription" class="form-label">Description</label>
                 <textarea class="form-control" id="videoDescription" name="description" rows="4" placeholder="Enter video description" required></textarea>
             </div>
             <div class="mb-3">
