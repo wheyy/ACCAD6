@@ -16,9 +16,9 @@ videoInput.addEventListener('change', (event) => {
 });
 
 // Cancel button functionality
-const cancelButton = document.getElementById('cancelButton');
-cancelButton.addEventListener('click', () => {
-    document.getElementById('uploadForm').reset();
-    previewContainer.style.display = 'none'; // Hide the preview
-    videoPreview.src = ''; // Clear the video source
-});
+// const cancelButton = document.getElementById('cancelButton');
+// cancelButton.addEventListener('click', () => {
+//     document.getElementById('uploadForm').reset();
+//     previewContainer.style.display = 'none'; // Hide the preview
+//     videoPreview.src = ''; // Clear the video source
+// });

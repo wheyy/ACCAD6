@@ -1,55 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy me a coffee pleaseeee</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 100px auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #555;
-            font-size: 18px;
-        }
-        .btn {
-            background-color: #ff8c00;
-            color: white;
-            padding: 12px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #ff6a00;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <div class="container">
-        <h1>Buy Me a Coffee ☕</h1>
-        <p>If you enjoy my work and want to be a good person in life, buying me 100 coffees would really help!</p>
-        <a href="https://buymeacoffee.com/tanakasan" class="btn" target="_blank">Buy Me a Coffee</a>
-    </div>
+{% block title %}Calendar - {{ year }}-{{ month }}{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="container">
+    <h1>Buy Me a Coffee ☕</h1>
+    <p>If you enjoy my work and want to be a good person in life, buying me 100 coffees would really help!</p>
+    <a href="https://buymeacoffee.com/tanakasan" class="btn" target="_blank">Buy Me a Coffee</a>
+</div>
+
+{% endblock %}

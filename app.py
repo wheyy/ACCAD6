@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 import calendar
 from datetime import datetime
 
-
 app = Flask(__name__)
+
+
 
 @app.route('/')
 def index():
     return redirect(url_for('calendar_view'))
+    # return render_template('base.html', navbar_links=navbar_links)
 
 @app.route('/calendar')
 def calendar_view():
@@ -22,19 +24,19 @@ def calendar_view():
     # Pass the calendar and current month/year to the template
     return render_template('calendar.html', cal=cal, year=year, month=month)
 
-@app.route('/event/<date>')
-def event_page(date):
-    # Here we just pass the date to show it, you can replace this
-    # with logic to fetch real event details from a database
-    return render_template('event.html', date=date)
+# @app.route('/event/<date>')
+# def event_page(date):
+#     # Here we just pass the date to show it, you can replace this
+#     # with logic to fetch real event details from a database
+#     return render_template('event.html', date=date)
 
-@app.route("/upload", methods=['GET', 'POST'])
-def upload() :
+@app.route("/upload/<date>", methods=['GET', 'POST'])
+def upload(date):
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
     # print(title, description)
-    return render_template("upload.html")
+    return render_template("upload.html", date=date)
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
