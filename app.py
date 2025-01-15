@@ -27,7 +27,7 @@ def upload_video(filename, timestamp, title, description, video):
                 'params': {
                      'user_id':1,
                      'submission_id':str(uuid.uuid4()),
-                     'object_name':filename+timestamp,
+                     'object_name':filename,
                      'timestamp':timestamp,
                      'title':title,
                      'description': description
@@ -38,7 +38,7 @@ def upload_video(filename, timestamp, title, description, video):
         print("Lambda_response: ",lambda_response)
 
         url = lambda_response['url']
-        file = {"file":(filename+timestamp, video)}
+        file = {"file":(filename, video)}
         http_response = rq.put(url,data=file)
 
         print("http_response.text: ", http_response.text)
@@ -78,10 +78,11 @@ def upload():
 @app.route("/upload", methods=['POST'])
 def upload_post():
     date = datetime.now
-    filename = request.form.get("video").filename if request.form.get("video") else ""
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
+    filename = video.filename if video else ""
+    # print("filename: ", filename)
     # print(title, description)
     upload_video(filename, date, title, description, video)
     return render_template("calendar.html")
