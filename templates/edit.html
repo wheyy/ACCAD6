@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Attendance Management</h2>
+
+        <!-- Table to display attendance records -->
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_data %}
+                <tr>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.date }}</td>
+                    <td>
+                        <!-- Display current status (dropdown to edit status) -->
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="id" value="{{ record.id }}">
+                            <select name="status" class="form-select" style="width: 120px;">
+                                <option value="Present" {% if record.status == 'Present' %} selected {% endif %}>Present</option>
+                                <option value="Absent" {% if record.status == 'Absent' %} selected {% endif %}>Absent</option>
+                                <option value="Late" {% if record.status == 'Late' %} selected {% endif %}>Late</option>
+                                <option value="Excused" {% if record.status == 'Excused' %} selected {% endif %}>Excused</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary ml-2">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <!-- Action column can be left empty or add any additional controls -->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

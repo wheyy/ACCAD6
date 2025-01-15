@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -13,6 +13,10 @@ def upload() :
     video = request.files.get("video")
     # print(title, description)
     return render_template("upload.html")
+
+@app.route('/edit', methods=['GET', 'POST'])
+def edit():
+        return render_template("edit.html")
 
 @app.route("/coffee")
 def coffee():
