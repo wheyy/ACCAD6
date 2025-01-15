@@ -99,9 +99,30 @@ def upload_post():
     upload_video(filename, date, title, description, video)
     return render_template("calendar.html")
 
-@app.route("/edit/<id>", methods=['GET', 'POST'])
+@app.route("/edit/<int:id>", methods=['GET', 'POST'])
 def edit(id):
-    return render_template("edit.html")
+    # Find the record by the provided ID, but Im not sure if this generator thing will work
+    video_record = next((record for record in attendance_data if record['id'] == id), None)
+    
+    if not video_record:
+        return "Record not found", 404
+
+    if request.method == 'POST':
+        title = request.form.get("title")
+        description = request.form.get("description")
+        video = request.files.get("video")
+
+        if video:
+            filename = video.filename
+            video_record['video_link'] = f"https://your-s3-bucket-url/{filename}" # Im not sure if this is how the linsk should be
+            upload_video(filename, datetime.now(), title, description, video)
+
+        video_record['name'] = title
+        video_record['remarks'] = description
+
+        return redirect(url_for('view', date=datetime.now().strftime('%Y-%m-%d')))
+
+    return render_template("edit.html", video=video_record)
 
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
