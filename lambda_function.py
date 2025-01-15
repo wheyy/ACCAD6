@@ -16,8 +16,13 @@ def lambda_handler(event, context):
     '''
 
     body = json.loads(event['body'])
+    # body = event
     action = body['action']
     params = body['params']
+
+    if action == 'get_calendar':
+        date = params.get('date')
+        return get_calendar_entries(date)
 
     if action == 'upload':
         object_name = params.get('object_name')
@@ -44,6 +49,47 @@ def lambda_handler(event, context):
         'statusCode': 400,
         'body': json.dumps(f'Invalid action {action}')
     }
+
+def get_calendar_entries(date):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('accad-6-attendance-app-dynamodb')
+    
+    try:
+        response = table.scan(
+            FilterExpression='begins_with(#ts, :date)',
+            ExpressionAttributeNames={
+                '#ts': 'timestamp'
+            },
+            ExpressionAttributeValues={
+                ':date': date
+            }
+        )
+        print(f"DynamoDB response: {response}")
+        items = response['Items']
+        calendar_records = []
+        
+        for item in items:
+            # get permanent s3 url
+            s3_url = f"https://accad-6-attendance-app-bucket.s3.ap-southeast-1.amazonaws.com/{item.get('object_name')}"
+            record = {
+                'title': item.get('title'),
+                'description': item.get('description'),
+                'video_link': s3_url,
+                'timestamp': item.get('timestamp')
+            }
+            calendar_records.append(record)
+            
+        return {
+            'statusCode': 200,
+            'body': json.dumps(calendar_records)
+        }
+        
+    except ClientError as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
+
 
 def upload(bucket_name: str, object_name: str, expiration=30):
     '''
