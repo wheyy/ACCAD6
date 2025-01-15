@@ -156,6 +156,7 @@ def edit(id, timestamp):
         except Exception as e:
             print(f"Error: {e}")
             return render_template("edit.html", error="Failed to update entry")
+          
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
     try:
