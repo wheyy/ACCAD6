@@ -4,6 +4,17 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Populate some data
+record = {
+     'id' : 1,
+     'name' : 'Michael',
+     'mod': 'SC1003',
+     'remarks': '',
+     'video_link': 'https://www.youtube.com/watch?v=xvFZjo5PgG0&ab_channel=Duran'
+}
+
+attendance_data = [record]
+
 
 
 @app.route('/')
@@ -39,9 +50,13 @@ def upload():
     # print(title, description)
     return render_template("upload.html")
 
-@app.route('/edit', methods=['GET', 'POST'])
-def edit():
-        return render_template("edit.html")
+@app.route("/edit/<id>", methods=['GET', 'POST'])
+def edit(id):
+    return render_template("edit.html")
+
+@app.route('/view/<date>')
+def view(date):
+        return render_template("view.html", date=date, attendance_data = attendance_data)
 
 @app.route("/coffee")
 def coffee():
