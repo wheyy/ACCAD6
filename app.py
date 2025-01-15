@@ -36,7 +36,7 @@ def upload_video(filename, timestamp, title, description, video):
 
         url = response_url.get("url")
         # Send a PUT request with the raw binary data (important)
-        http_response = rq.put(url,data=video.read())
+        http_response = rq.put(url,data=video.read(), headers={'Content-Type': 'video/mp4'})
         
         print("HTTP response status:", http_response.status_code)
 
