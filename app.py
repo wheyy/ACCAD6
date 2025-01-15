@@ -1,6 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, request
+import requests as rq
 import calendar
 from datetime import datetime
+import uuid
+import json
 
 app = Flask(__name__)
 
@@ -14,7 +17,56 @@ record = {
 }
 
 attendance_data = [record]
+LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-southeast-1.on.aws/'
 
+# functions
+def upload_video(filename, timestamp, title, description, video):
+    print("filename: ", filename)
+    payload = {'action': 'upload',
+                'params': {
+                    'object_name':filename,
+                    }
+                }
+
+    try:
+        # Getting the presigned URL from AWS S3
+        lambda_request = rq.post(LAMBDA_FUNCTION_URL, json=payload, headers={'Content-Type': 'application/json'})
+        
+        response_url = lambda_request.json()
+
+        url = response_url.get("url")
+        # Send a PUT request with the raw binary data (important)
+        http_response = rq.put(url,data=video.read(), headers={'Content-Type': 'video/mp4'})
+        
+        print("HTTP response status:", http_response.status_code)
+
+        if http_response.status_code == 200:
+            # If the upload succeeds, update the DynamoDB with an entry
+            # Craft a different payload
+            submission_id = uuid.uuid4().int & (1<<32)-1
+            timestamp = datetime.now().replace(microsecond=0).isoformat()
+            
+            payload = {'action': 'write_to_db',
+                'params': {
+                    'user_id':1,
+                    'submission_id': submission_id,
+                    'object_name':filename,
+                    'timestamp': timestamp,
+                    'title':title,
+                    'description': description
+                    }
+                }
+            
+            db_request = rq.post(LAMBDA_FUNCTION_URL, json=payload, headers={'Content-Type': 'application/json'})
+            print("DynamoDB response status:", db_request.status_code)
+            print("DynamoDB", db_request.text)
+
+
+    except Exception as e:
+        print(e)
+
+def get_calendar_view():
+    pass
 
 
 @app.route('/')
@@ -41,14 +93,21 @@ def calendar_view():
 #     # with logic to fetch real event details from a database
 #     return render_template('event.html', date=date)
 
-@app.route("/upload", methods=['GET', 'POST'])
+@app.route("/upload", methods=['GET'])
 def upload():
+    return render_template("upload.html")
+
+@app.route("/upload", methods=['POST'])
+def upload_post():
     date = datetime.now
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
+    filename = video.filename if video else ""
+    # print("filename: ", filename)
     # print(title, description)
-    return render_template("upload.html")
+    upload_video(filename, date, title, description, video)
+    return render_template("calendar.html")
 
 @app.route("/edit/<id>", methods=['GET', 'POST'])
 def edit(id):
@@ -56,7 +115,37 @@ def edit(id):
 
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
-        return render_template("view.html", date=date, attendance_data = attendance_data)
+    try:
+        # Send a payload to AWS Lambda to process DynamoDB queries
+        payload = {
+            'action': 'get_calendar',
+            'params': {
+                'date': date
+            }
+        }
+
+        response = rq.post(
+            LAMBDA_FUNCTION_URL, 
+            json=payload, 
+            headers={'Content-Type': 'application/json'}
+        )
+
+        # print(f"Lambda response status: {response.status_code}")
+        # print(f"Lambda response text: {response.text}")
+
+        if response.status_code == 200:
+            calendar_data = response.json()
+            return render_template("view.html", 
+                                date=date, attendance_data=calendar_data)
+        else:
+            return render_template("view.html", 
+                                date=date, 
+                                attendance_data=[])
+    except Exception as e:
+        print(f"Error: {e}")
+        return render_template("view.html", 
+                            date=date, 
+                            attendance_data=[])
 
 @app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
 def delete(id, date):
