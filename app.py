@@ -1,6 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, request
+import requests as rq
 import calendar
 from datetime import datetime
+import uuid
+import json
 
 app = Flask(__name__)
 
@@ -14,7 +17,34 @@ record = {
 }
 
 attendance_data = [record]
+LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-southeast-1.on.aws/'
 
+# functions
+def upload_video(filename, timestamp, title, description, video):
+    print("filename: ", filename)
+    filename, timestamp, title, description, video = filename, str(timestamp), title, description, video
+    payload = {'action': 'upload',
+                'params': {
+                     'user_id':1,
+                     'submission_id':str(uuid.uuid4()),
+                     'object_name':filename+timestamp,
+                     'timestamp':timestamp,
+                     'title':title,
+                     'description': description
+                      }}
+    try:
+        lambda_request =rq.post(LAMBDA_FUNCTION_URL, json=payload)
+        lambda_response = lambda_request.json()
+        print("Lambda_response: ",lambda_response)
+
+        url = lambda_response['url']
+        file = {"file":(filename+timestamp, video)}
+        http_response = rq.put(url,data=file)
+
+        print("http_response.text: ", http_response.text)
+    
+    except Exception as e:
+        print(e)
 
 
 @app.route('/')
@@ -41,14 +71,20 @@ def calendar_view():
 #     # with logic to fetch real event details from a database
 #     return render_template('event.html', date=date)
 
-@app.route("/upload", methods=['GET', 'POST'])
+@app.route("/upload", methods=['GET'])
 def upload():
+    return render_template("upload.html")
+
+@app.route("/upload", methods=['POST'])
+def upload_post():
     date = datetime.now
+    filename = request.form.get("video").filename if request.form.get("video") else ""
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
     # print(title, description)
-    return render_template("upload.html")
+    upload_video(filename, date, title, description, video)
+    return render_template("calendar.html")
 
 @app.route("/edit/<id>", methods=['GET', 'POST'])
 def edit(id):
