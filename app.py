@@ -35,13 +35,12 @@ def upload_video(filename, timestamp, title, description, video):
     try:
         lambda_request =rq.post(LAMBDA_FUNCTION_URL, json=payload)
         lambda_response = lambda_request.json()
-        print("Lambda_response: ",lambda_response)
 
         url = lambda_response['url']
         file = {"file":(filename, video)}
-        http_response = rq.put(url,data=file)
+        http_response = rq.put(LAMBDA_FUNCTION_URL,data=file)
 
-        print("http_response.text: ", http_response.text)
+        print("http_response.text: ", http_response)
     
     except Exception as e:
         print(e)
