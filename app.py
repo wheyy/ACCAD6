@@ -54,9 +54,15 @@ def upload():
 def edit(id):
     return render_template("edit.html")
 
-@app.route('/view/<date>')
+@app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
         return render_template("view.html", date=date, attendance_data = attendance_data)
+
+@app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
+def delete(id, date):
+    id = id
+    date = date
+    return redirect(url_for('view', date=date))
 
 @app.route("/coffee")
 def coffee():
