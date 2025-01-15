@@ -2,8 +2,6 @@ import boto3
 from botocore.exceptions import ClientError
 import json
 
-### This is hosted on AWS Lambda and should not be used unless running locally ###
-
 def lambda_handler(event, context):
     '''
     This function handles incoming HTTP requests.
@@ -16,30 +14,35 @@ def lambda_handler(event, context):
             }
     context - not used
     '''
-    action = event.get('action')
-    params = event.get('params', {})
+
+    body = json.loads(event['body'])
+    action = body['action']
+    params = body['params']
 
     if action == 'upload':
         object_name = params.get('object_name')
         expiration = int(params.get('expiration', 30))
         upload_response = upload('accad-6-attendance-app-bucket', object_name, expiration)
+        
+        return dict(upload_response)
+    
+    if action == 'write_to_db':
+        submission_id = params.get('submission_id')
+        timestamp = params.get('timestamp')
+        user_id = params.get('user_id')
+        object_name = params.get('object_name')
+        title = params.get('title')
+        description = params.get('description')
 
-        db_response = insert_to_db( params.get('submission_id'),
-                                    params.get('timestamp'),
-                                    params.get('user_id'),
-                                    params.get('object_name'),
-                                    params.get('title'),
-                                    params.get('description') )
-        
-        return upload_response, db_response
-        
+        return insert_to_db(submission_id, timestamp, user_id, object_name, title, description)
+
     elif action == 'generate_view_url':
         object_name = params.get('object_name')
         return generate_view_url('accad-6-attendance-app-bucket', object_name)
     
     return {
         'statusCode': 400,
-        'body': json.dumps('Invalid action')
+        'body': json.dumps(f'Invalid action {action}')
     }
 
 def upload(bucket_name: str, object_name: str, expiration=30):
@@ -61,7 +64,7 @@ def upload(bucket_name: str, object_name: str, expiration=30):
             'body': json.dumps('object_name is required')
         }
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name='ap-southeast-1')
 
     try:
         url = s3_client.generate_presigned_url(
@@ -83,7 +86,7 @@ def upload(bucket_name: str, object_name: str, expiration=30):
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
         }
-    
+
 def insert_to_db(submission_id, timestamp, user_id, object_name, title, description):
     if not all([submission_id, timestamp, user_id, object_name]):
         return {
@@ -139,6 +142,3 @@ def generate_view_url(bucket_name: str, object_name: str, expiration=30):
     except ClientError as e:
         print(f"Error: {e}")
         return {'body': None, 'statusCode': 500}
-
-
-
