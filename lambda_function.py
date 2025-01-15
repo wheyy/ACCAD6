@@ -2,6 +2,8 @@ import boto3
 from botocore.exceptions import ClientError
 import json
 
+### This is hosted on AWS Lambda and should not be used unless running locally ###
+
 def lambda_handler(event, context):
     '''
     This function handles incoming HTTP requests.
