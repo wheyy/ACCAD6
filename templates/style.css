@@ -1,0 +1,54 @@
+/* General body styling */
+body {
+    background-color: #2c2f33 !important; /* Dark bluish gray */
+    color: white !important;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Form fields */
+.form-control, .form-control:focus, textarea.form-control {
+    background-color: #1c1e22; /* Darker black for input fields */
+    color: white;
+    border: 1px solid #4b4f56; /* Subtle border */
+}
+
+/* Placeholder text */
+::placeholder {
+    color: #8a8d91; /* Light gray for placeholder text */
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #7289da; /* Discord-like blue */
+    border-color: #5c6bc0;
+}
+
+.btn-primary:hover {
+    background-color: #5c6bc0;
+    border-color: #4e5ba6;
+}
+
+.btn-danger {
+    background-color: #f04747; /* Light red */
+    border-color: #d43535;
+}
+
+.btn-danger:hover {
+    background-color: #d43535;
+    border-color: #a92b2b;
+}
+
+/* Video preview */
+#videoPreview {
+    border: 1px solid #4b4f56;
+    background-color: #1c1e22;
+}
+
+/* Container styling for centering and spacing */
+.container {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #23272a; /* Slightly lighter dark gray for contrast */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+}
