@@ -47,6 +47,8 @@ def upload():
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
+    video_file_name = request.files.get("video").filename
+    print(video_file_name)
     # print(title, description)
     return render_template("upload.html")
 
