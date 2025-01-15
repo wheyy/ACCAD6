@@ -9,8 +9,8 @@ def lambda_handler(event, context):
     Parameters:
     event - A dictionary containing the action type and params
         eg. {
-                "action": "generate_view_url",
-                "params": {"object_name": "test_video.mp4"}
+                "action": "delete",
+                "params": {"submission_id": 123, "timestamp": "2025-01-15T00:00:00}
             }
     context - not used
     '''
@@ -28,12 +28,23 @@ def lambda_handler(event, context):
     if action == 'get_calendar':
         date = params.get('date')
         return get_calendar_entries(date)
+    
+    if action == 'get_single_entry':
+        submission_id = params.get('submission_id')
+        timestamp = params.get('timestamp')
+        return get_single_entry(submission_id, timestamp)
+    
+    if action == 'update_entry':
+        submission_id = params.get('submission_id')
+        timestamp = params.get('timestamp')
+        title = params.get('title')
+        description = params.get('description')
+        return update_entry(submission_id, timestamp, title, description)
 
     if action == 'upload':
         object_name = params.get('object_name')
         expiration = int(params.get('expiration', 30))
         upload_response = upload('accad-6-attendance-app-bucket', object_name, expiration)
-        
         return dict(upload_response)
     
     if action == 'write_to_db':
@@ -43,17 +54,76 @@ def lambda_handler(event, context):
         object_name = params.get('object_name')
         title = params.get('title')
         description = params.get('description')
-
         return insert_to_db(submission_id, timestamp, user_id, object_name, title, description)
-
-    elif action == 'generate_view_url':
-        object_name = params.get('object_name')
-        return generate_view_url('accad-6-attendance-app-bucket', object_name)
     
     return {
         'statusCode': 400,
         'body': json.dumps(f'Invalid action {action}')
     }
+
+def get_single_entry(submission_id, timestamp):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('accad-6-attendance-app-dynamodb')
+    
+    try:
+        response = table.get_item(
+            Key={
+                'submission_id': submission_id,
+                'timestamp': timestamp
+            }
+        )
+        
+        if 'Item' in response:
+            item = response['Item']
+            record = {
+                'title': item.get('title'),
+                'description': item.get('description'),
+                'video_link': f"https://accad-6-attendance-app-bucket.s3.ap-southeast-1.amazonaws.com/{item.get('object_name')}",
+                'timestamp': item.get('timestamp'),
+                'submission_id': int(item.get('submission_id')),
+                'object_name': item.get('object_name')
+            }
+            return {
+                'statusCode': 200,
+                'body': json.dumps(record)
+            }
+        return {
+            'statusCode': 404,
+            'body': json.dumps('Entry not found')
+        }
+    except ClientError as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
+
+def update_entry(submission_id, timestamp, title, description):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('accad-6-attendance-app-dynamodb')
+    
+    try:
+        response = table.update_item(
+            Key={
+                'submission_id': submission_id,
+                'timestamp': timestamp
+            },
+            UpdateExpression='SET title = :t, description = :d',
+            ExpressionAttributeValues={
+                ':t': title,
+                ':d': description
+            },
+            ReturnValues='ALL_NEW'
+        )
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Entry updated successfully')
+        }
+    except ClientError as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
+
 
 def delete_entry(submission_id, timestamp):
     dynamodb = boto3.resource('dynamodb')
@@ -192,28 +262,3 @@ def insert_to_db(submission_id, timestamp, user_id, object_name, title, descript
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
         }
-
-def generate_view_url(bucket_name: str, object_name: str, expiration=30):
-    '''
-    This function generates a url to view the uploaded object.
-
-    Parameters:
-    bucket_name - default, accad-6-attendance-app-bucket
-    object_name - video file name. eg: test_video.mp4
-    expiration - default: 30. time in seconds before link expires
-    '''
-    s3_client = boto3.client('s3')
-    
-    try:
-        url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={
-                'Bucket': bucket_name,
-                'Key': object_name
-            },
-            ExpiresIn=expiration
-        )
-        return {'body': url, 'statusCode': 200}
-    except ClientError as e:
-        print(f"Error: {e}")
-        return {'body': None, 'statusCode': 500}
