@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      # Install pytest
+      - echo Installing pytest...
+      - pip install pytest
+      - echo pytest install success!
+      
+  build:
+    commands:
+      # Run pytest
+      - echo Running pytest...
+      - pytest
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
