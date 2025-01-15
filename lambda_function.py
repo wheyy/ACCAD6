@@ -20,6 +20,11 @@ def lambda_handler(event, context):
     action = body['action']
     params = body['params']
 
+    if action == 'delete':
+        submission_id = params.get('submission_id')
+        timestamp = params.get('timestamp')
+        return delete_entry(submission_id, timestamp)
+
     if action == 'get_calendar':
         date = params.get('date')
         return get_calendar_entries(date)
@@ -50,6 +55,28 @@ def lambda_handler(event, context):
         'body': json.dumps(f'Invalid action {action}')
     }
 
+def delete_entry(submission_id, timestamp):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('accad-6-attendance-app-dynamodb')
+    
+    try:
+        response = table.delete_item(
+            Key={
+                'submission_id': submission_id,
+                'timestamp': timestamp
+            }
+        )
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Entry deleted successfully')
+        }
+    except ClientError as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
+
+
 def get_calendar_entries(date):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('accad-6-attendance-app-dynamodb')
@@ -75,7 +102,8 @@ def get_calendar_entries(date):
                 'title': item.get('title'),
                 'description': item.get('description'),
                 'video_link': s3_url,
-                'timestamp': item.get('timestamp')
+                'timestamp': item.get('timestamp'),
+                'submission_id': int(item.get('submission_id'))
             }
             calendar_records.append(record)
             
@@ -117,7 +145,8 @@ def upload(bucket_name: str, object_name: str, expiration=30):
             'put_object',
             Params={
                 'Bucket': bucket_name,
-                'Key': object_name
+                'Key': object_name,
+                'ContentType': 'video/mp4'
             },
             ExpiresIn=expiration
         )

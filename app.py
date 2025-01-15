@@ -7,16 +7,6 @@ import json
 
 app = Flask(__name__)
 
-# Populate some data
-record = {
-     'id' : 1,
-     'name' : 'Michael',
-     'mod': 'SC1003',
-     'remarks': '',
-     'video_link': 'https://www.youtube.com/watch?v=xvFZjo5PgG0&ab_channel=Duran'
-}
-
-attendance_data = [record]
 LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-southeast-1.on.aws/'
 
 # functions
@@ -147,11 +137,40 @@ def view(date):
                             date=date, 
                             attendance_data=[])
 
-@app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
-def delete(id, date):
-    id = id
-    date = date
-    return redirect(url_for('view', date=date))
+# @app.route("/delete/<date>/<id>", methods=['GET', 'POST'])
+# def delete(id, date):
+#     id = id
+#     date = date
+#     return redirect(url_for('view', date=date))
+
+@app.route("/delete/<id>/<timestamp>", methods=['POST'])
+def delete(id, timestamp):
+        
+    try:
+        id = id
+        timestamp = timestamp
+        payload = {
+            'action': 'delete',
+            'params': {
+                'submission_id': int(id),
+                'timestamp': timestamp
+            }
+        }
+    
+        response = rq.post(
+            LAMBDA_FUNCTION_URL,
+            json=payload,
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        if response.status_code == 200:
+            return {'status': 'success'}, 200
+        return {'status': 'error'}, 500
+            
+    except Exception as e:
+        print(f"Error in delete route: {e}")
+        return {'status': 'error', 'message': str(e)}, 500
+
 
 @app.route("/coffee")
 def coffee():
