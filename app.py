@@ -4,7 +4,6 @@ import calendar
 from datetime import datetime
 import uuid
 import json
-import dotenv
 
 app = Flask(__name__)
 
@@ -23,26 +22,46 @@ LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-sou
 # functions
 def upload_video(filename, timestamp, title, description, video):
     print("filename: ", filename)
-    filename, timestamp, title, description, video = filename, str(timestamp), title, description, video
     payload = {'action': 'upload',
                 'params': {
-                     'user_id':1,
-                     'submission_id':str(uuid.uuid4()),
-                     'object_name':filename,
-                     'timestamp':timestamp,
-                     'title':title,
-                     'description': description
-                      }}
+                    'object_name':filename,
+                    }
+                }
+
     try:
-        lambda_request =rq.post(LAMBDA_FUNCTION_URL, json=payload)
-        lambda_response = lambda_request.json()
+        # Getting the presigned URL from AWS S3
+        lambda_request = rq.post(LAMBDA_FUNCTION_URL, json=payload, headers={'Content-Type': 'application/json'})
+        
+        response_url = lambda_request.json()
 
-        url = lambda_response['url']
-        file = {"file":(filename, video)}
-        http_response = rq.put("https://accad-6-attendance-app-bucket.s3.amazonaws.com/"+filename,data=file)
+        url = response_url.get("url")
+        # Send a PUT request with the raw binary data (important)
+        http_response = rq.put(url,data=video.read())
+        
+        print("HTTP response status:", http_response.status_code)
 
-        print("http_response.text: ", http_response)
-    
+        if http_response.status_code == 200:
+            # If the upload succeeds, update the DynamoDB with an entry
+            # Craft a different payload
+            submission_id = uuid.uuid4().int & (1<<32)-1
+            timestamp = datetime.now().replace(microsecond=0).isoformat()
+            
+            payload = {'action': 'write_to_db',
+                'params': {
+                    'user_id':1,
+                    'submission_id': submission_id,
+                    'object_name':filename,
+                    'timestamp': timestamp,
+                    'title':title,
+                    'description': description
+                    }
+                }
+            
+            db_request = rq.post(LAMBDA_FUNCTION_URL, json=payload, headers={'Content-Type': 'application/json'})
+            print("DynamoDB response status:", db_request.status_code)
+            print("DynamoDB", db_request.text)
+
+
     except Exception as e:
         print(e)
 
