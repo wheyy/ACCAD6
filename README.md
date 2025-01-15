@@ -1,6 +1,6 @@
 # ACCAD6 Capstone Project
 
-- Made by: Low King Whey, Aaron Soh, Ang Ian, Tan Xeng Ian
+- Made by: Low King Whey(not the brand), Aaron Soh, Ang Ian, Tan Xeng Ian
 
 ## Core Services
 
