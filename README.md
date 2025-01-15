@@ -12,6 +12,6 @@
 
 - [x] **Set up frontend with Flask**
 - [x] **Set up AWS Lambda, DynamoDB, and S3**
-- [ ] **Implement CRUD functions** (In progress)
-- [ ] **Integrate frontend with AWS Lambda backend** (In progress)
+- [x] **Implement CRUD functions**
+- [x] **Integrate frontend with AWS Lambda backend**
 - [ ] **Perform unit tests**
