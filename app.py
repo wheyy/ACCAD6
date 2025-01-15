@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return redirect(url_for('calendar_view'))
+    return redirect(url_for('upload'))
     # return render_template('base.html', navbar_links=navbar_links)
 
 @app.route('/calendar')
@@ -30,13 +30,14 @@ def calendar_view():
 #     # with logic to fetch real event details from a database
 #     return render_template('event.html', date=date)
 
-@app.route("/upload/<date>", methods=['GET', 'POST'])
-def upload(date):
+@app.route("/upload", methods=['GET', 'POST'])
+def upload():
+    date = datetime.now
     title =  request.form.get("title")
     description = request.form.get("description")
     video = request.files.get("video")
     # print(title, description)
-    return render_template("upload.html", date=date)
+    return render_template("upload.html")
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
