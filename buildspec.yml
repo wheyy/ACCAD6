@@ -8,7 +8,7 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      - docker docker build -t accad-6-capstone-project-ecr .
+      - docker build -t accad-6-capstone-project-ecr .
       - docker tag accad-6-capstone-project-ecr:latest 914776188250.dkr.ecr.ap-southeast-1.amazonaws.com/accad-6-capstone-project-ecr:latest
   post_build:
     commands:
