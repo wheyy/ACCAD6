@@ -25,7 +25,7 @@
                     <td></td>
                 {% else %}
                     <td class="calendar-day">
-                        <a href="{{ url_for('event_page', date=year ~ '-' ~ '{:02d}'.format(month) ~ '-' ~ '{:02d}'.format(day)) }}">
+                        <a href="{{ url_for('view', date=year ~ '-' ~ '{:02d}'.format(month) ~ '-' ~ '{:02d}'.format(day)) }}">
                             {{ day }}
                         </a>
                     </td>
