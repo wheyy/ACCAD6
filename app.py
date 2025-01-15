@@ -7,16 +7,6 @@ import json
 
 app = Flask(__name__)
 
-# Populate some data
-record = {
-     'id' : 1,
-     'name' : 'Michael',
-     'mod': 'SC1003',
-     'remarks': '',
-     'video_link': 'https://www.youtube.com/watch?v=xvFZjo5PgG0&ab_channel=Duran'
-}
-
-attendance_data = [record]
 LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-southeast-1.on.aws/'
 
 # functions
