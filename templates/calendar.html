@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Calendar - {{ year }}-{{ month }}{% endblock %}
+
+{% block content %}
+<h2>Calendar for {{ month }}-{{ year }}</h2>
+
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in cal %}
+        <tr>
+            {% for day in week %}
+                {% if day == 0 %}
+                    <td></td>
+                {% else %}
+                    <td class="calendar-day">
+                        <a href="{{ url_for('view', date=year ~ '-' ~ '{:02d}'.format(month) ~ '-' ~ '{:02d}'.format(day)) }}">
+                            {{ day }}
+                        </a>
+                    </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
