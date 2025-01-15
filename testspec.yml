@@ -6,9 +6,9 @@ phases:
       python: 3.11
     commands:
       # Install pytest
-      - echo Installing pytest...
-      - pip install pytest
-      - echo pytest install success!
+      - echo Installing dependencies...
+      - pip install pytest requests
+      - echo Install success!
       
   build:
     commands:
