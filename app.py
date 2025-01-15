@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, redirect, url_for
 import calendar
 from datetime import datetime
+=======
+from flask import Flask, render_template, request
+>>>>>>> main
 
 app = Flask(__name__)
 
@@ -27,5 +31,21 @@ def event_page(date):
     # with logic to fetch real event details from a database
     return render_template('event.html', date=date)
 
+@app.route("/upload", methods=['GET', 'POST'])
+def upload() :
+    title =  request.form.get("title")
+    description = request.form.get("description")
+    video = request.files.get("video")
+    # print(title, description)
+    return render_template("upload.html")
+
+@app.route("/coffee")
+def coffee():
+    return render_template("coffee.html")
+
 if __name__ == "__main__":
+<<<<<<< HEAD
     app.run(port=8000, host='0.0.0.0', debug=True)
+=======
+    app.run(port=8080, host='0.0.0.0', debug=True)
+>>>>>>> main
