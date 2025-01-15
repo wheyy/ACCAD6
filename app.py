@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 import calendar
 from datetime import datetime
-=======
-from flask import Flask, render_template, request
->>>>>>> main
+
 
 app = Flask(__name__)
 
@@ -39,13 +36,13 @@ def upload() :
     # print(title, description)
     return render_template("upload.html")
 
+@app.route('/edit', methods=['GET', 'POST'])
+def edit():
+        return render_template("edit.html")
+
 @app.route("/coffee")
 def coffee():
     return render_template("coffee.html")
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     app.run(port=8000, host='0.0.0.0', debug=True)
-=======
-    app.run(port=8080, host='0.0.0.0', debug=True)
->>>>>>> main
