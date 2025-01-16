@@ -55,10 +55,6 @@ def upload_video(filename, timestamp, title, description, video):
     except Exception as e:
         print(e)
 
-def get_calendar_view():
-    pass
-
-
 @app.route('/')
 def index():
     return redirect(url_for('upload'))
@@ -75,8 +71,7 @@ def calendar_view():
     cal = calendar.monthcalendar(year, month)
 
     # Pass the calendar and current month/year to the template
-    return render_template('calendar.html', cal=cal, year=year, month=month)
-
+    return redirect(url_for('view', date=datetime.now().isoformat().split('T')[0]))    
 # @app.route('/event/<date>')
 # def event_page(date):
 #     # Here we just pass the date to show it, you can replace this
@@ -97,7 +92,7 @@ def upload_post():
     # print("filename: ", filename)
     # print(title, description)
     upload_video(filename, date, title, description, video)
-    return render_template("calendar.html")
+    return redirect("calendar.html", )
 
 @app.route("/edit/<id>/<timestamp>", methods=['GET', 'POST'])
 def edit(id, timestamp):
