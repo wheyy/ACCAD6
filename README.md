@@ -165,7 +165,7 @@ url = s3_client.generate_presigned_url(
         )
 ```
 
-** Why pre-signed URLs? **
+**Why pre-signed URLs?**
 
 - Allows public uploads to our S3 bucket without exposing bucket endpoint
 - No need for AWS credentials, no need for any secrets manager, etc
@@ -198,6 +198,3 @@ payload = {'action': 'write_to_db',
 requests.post(LAMBDA_FUNCTION_URL, json=payload, headers={'Content-Type': 'application/json'})
 ```
 A unique UUID is generated (and shortened to 32 bits), along with the current server datetime, and is packaged into a payload.
-
-## Challenges
-
