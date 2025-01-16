@@ -6,6 +6,18 @@ def test_connection():
     response = app.test_client().get('/upload')
     assert response.status_code == 200
 
+def test_connection():
+    response = app.test_client().get('/edit')
+    assert response.status_code == 200
+
+def test_connection():
+    response = app.test_client().get('/calendar')
+    assert response.status_code == 200
+
+def test_connection():
+    response = app.test_client().get('/coffee')
+    assert response.status_code == 200
+
 # since we want to redirect / to /update, check if redirect is working
 def test_redirect():
     response = app.test_client().get('/')
