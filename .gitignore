@@ -1,5 +1,3 @@
 .venv
 .DS_Store
 .env
-__pycache__
-tests/__pycache__
