@@ -1,6 +1,6 @@
 # ACCAD6 Capstone Project
 
-- Made by: Low King Whey, Aaron Soh, Ang Ian, Tan Xeng Ian
+- Made by: Low King Whey(not the brand), Aaron Soh, Ang Ian, Tan Xeng Ian
 
 ## Core Services
 
@@ -12,6 +12,6 @@
 
 - [x] **Set up frontend with Flask**
 - [x] **Set up AWS Lambda, DynamoDB, and S3**
-- [ ] **Implement CRUD functions** (In progress)
-- [ ] **Integrate frontend with AWS Lambda backend** (In progress)
+- [x] **Implement CRUD functions**
+- [x] **Integrate frontend with AWS Lambda backend**
 - [ ] **Perform unit tests**
