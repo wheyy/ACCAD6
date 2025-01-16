@@ -11,6 +11,8 @@ LAMBDA_FUNCTION_URL ='https://kgwtully4gddfje4y7kxtlx5xy0mmbsf.lambda-url.ap-sou
 
 # functions
 def upload_video(filename, timestamp, title, description, video):
+    filename = filename+datetime.now().isoformat()
+
     print("filename: ", filename)
     payload = {'action': 'upload',
                 'params': {
@@ -57,7 +59,7 @@ def upload_video(filename, timestamp, title, description, video):
 
 @app.route('/')
 def index():
-    return redirect(url_for('upload'))
+    return redirect('upload')
     # return render_template('base.html', navbar_links=navbar_links)
 
 @app.route('/calendar')
@@ -71,28 +73,27 @@ def calendar_view():
     cal = calendar.monthcalendar(year, month)
 
     # Pass the calendar and current month/year to the template
-    return redirect(url_for('view', date=datetime.now().isoformat().split('T')[0]))    
+    return render_template("calendar.html", cal=cal, month=month, year=year)    
 # @app.route('/event/<date>')
 # def event_page(date):
 #     # Here we just pass the date to show it, you can replace this
 #     # with logic to fetch real event details from a database
 #     return render_template('event.html', date=date)
 
-@app.route("/upload", methods=['GET'])
-def upload():
-    return render_template("upload.html")
-
-@app.route("/upload", methods=['POST'])
+@app.route("/upload", methods=['GET', 'POST'])
 def upload_post():
-    date = datetime.now
-    title =  request.form.get("title")
-    description = request.form.get("description")
-    video = request.files.get("video")
-    filename = video.filename if video else ""
-    # print("filename: ", filename)
-    # print(title, description)
-    upload_video(filename, date, title, description, video)
-    return redirect("calendar.html", )
+    if request.method == 'GET':
+        return render_template("upload.html")
+    else:
+        date = datetime.now
+        title =  request.form.get("title")
+        description = request.form.get("description")
+        video = request.files.get("video")
+        filename = video.filename if video else ""
+        # print("filename: ", filename)
+        # print(title, description)
+        upload_video(filename, date, title, description, video)
+        return redirect(url_for("view", date=datetime.now().isoformat().split('T')[0]))
 
 @app.route("/edit/<id>/<timestamp>", methods=['GET', 'POST'])
 def edit(id, timestamp):
