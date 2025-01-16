@@ -48,11 +48,23 @@ Create a DynamoDB table with `submission_id:int` as partition key and `timestamp
 
 Create a new Amazon ECR private repository, and take note of the push commands. Add them to a `buildspec.yml` file and put it in your folder's root directory.
 
-Set up an Amazon CodeBuild project and set the primary source to your own GitHub repository. Enable privileged access under `Environment`, and set the buildspec file to the `buildspec.yml` file located in your repository.
+```
+aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin <aws-link-here>
+docker build -t <docker-image> .
+docker tag <docker-image>:latest <aws-link-here>/<docker-image>:latest
+docker push <aws-link-here>/<docker-image>:latest
+```
+
+Set up an Amazon CodeBuild project and set the primary source to your own GitHub repository. Enable privileged access under `Environment`, and set the buildspec file to the `buildspec.yml` file located in your repository. Set artifacts to none.
+
+![image](https://github.com/user-attachments/assets/065dc762-8d36-4480-bd46-8afb9164c758)
+<img src="https://github.com/user-attachments/assets/33c138ec-d713-44f6-91e7-6d4d8a6083ec" />
 
 Run the CodeBuild project once, and an image should appear in your ECR repository.
+![image](https://github.com/user-attachments/assets/539f00b6-232c-4005-9656-6d1216179ef0)
 
 Create an AWS App Runner project and point it to your ECR repository. Set the deployment trigger to be automatic.
+![image](https://github.com/user-attachments/assets/c07e673b-0ec2-41dc-a414-711cc57dd7d6)
 
 Create an AWS Lambda function with a Python runtime to use with `boto3`. Make sure to
 - Allow CORS in AWS Lambda and set origin to App Runner URL
